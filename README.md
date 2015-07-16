@@ -1,0 +1,1 @@
+# KORONA.pos-Client-API
