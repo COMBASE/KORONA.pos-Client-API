@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>COMBASE KORONA.pos Client API Demo</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+		<!-- Syntax highlighter-->
+		<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"></link>
+		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+
+		<script src="http://codemirror.net/lib/codemirror.js"></script>
+		<link rel="stylesheet" href="http://codemirror.net/lib/codemirror.css">
+		<script src="http://codemirror.net/mode/javascript/javascript.js"></script>
+		<script src="http://codemirror.net/addon/fold/foldcode.js"></script>
+		<link rel="stylesheet" href="http://codemirror.net/addon/fold/foldgutter.css"></link>
+		<script src="http://codemirror.net/addon/fold/foldgutter.js"></script>
+		<script src="http://codemirror.net/addon/fold/brace-fold.js"></script>
+
+		<!-- jQuery -->
+		<script src="webbrowser:jquery.min.js"></script>
+
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="webbrowser:bootstrap.min.css"></link>
+		<link rel="stylesheet" href="webbrowser:bootstrap-theme.min.css"></link>
+		<script src="webbrowser:bootstrap.min.js"></script>
+
+		<!-- KORONA.pos-Client API module -->
+		<script type="text/javascript" src="webbrowser:korona-plugin-api.js"></script>
+		<link rel="stylesheet" href="webbrowser:koronaposclient.css"></link>
+
+		<style>
+			code, kbd, pre, samp {
+				font-family: monospace;
+			}
+			body {
+				font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+			}
+			.CodeMirror {
+				height: auto;
+			}
+		</style>
+
+		<!-- JavaScript for this page -->
+		<script type="text/javascript">
+
+			window.onload = function myOnLoadFunc() {
+
+				korona_plugin_api.response.modified(function myModifiedFunc() {
+					var responseData = document.getElementById('responseData');
+
+					if (getWindowLocationUrlValue('highlightjs') === 'true' || typeof CodeMirror === 'undefined') {
+
+						responseData.innerHTML = '<pre><code>' + JSON.stringify(korona_plugin_api.response, null, "    ") + '</code></pre>';
+
+						if (typeof hljs !== 'undefined')
+							hljs.highlightBlock(responseData);
+
+					} else {
+
+						responseData.innerHTML = '<form><textarea id="responseDataCM">' + JSON.stringify(korona_plugin_api.response, null, "    ") + '</textarea></form>';
+
+						var editor = CodeMirror.fromTextArea(document.getElementById("responseDataCM"), {
+							mode:  "application/json",
+							readOnly: true,
+							foldGutter: true,
+							gutters: ["CodeMirror-foldgutter"],
+							viewportMargin: Infinity
+						});
+					}
+
+					fillActionsLists();
+				});
+
+				korona_plugin_api.ready(function myReadyFunc() {
+					var requestData = document.getElementById('requestData');
+
+					if (getWindowLocationUrlValue('highlightjs') === 'true' || typeof CodeMirror === 'undefined') {
+
+						requestData.innerHTML = '<pre><code>' + JSON.stringify(korona_plugin_api.request, null, "    ") + '</code></pre>';
+						if (typeof hljs !== 'undefined')
+							hljs.highlightBlock(requestData);
+
+					} else {
+
+						requestData.innerHTML = '<form><textarea id="requestDataCM">' + JSON.stringify(korona_plugin_api.request, null, "    ") + '</textarea></form>';
+
+						var editor = CodeMirror.fromTextArea(document.getElementById("requestDataCM"), {
+							mode:  "application/json",
+							readOnly: true,
+							foldGutter: true,
+							gutters: ["CodeMirror-foldgutter"],
+							viewportMargin: Infinity
+						});
+					}
+
+					$('#requestDataCollapse').collapse('hide');
+
+					korona_plugin_api.response.modified.notify();
+
+					fillRequestLists();
+				});
+
+				// if you open this page in a standard browser ...
+				if (korona_plugin_api.request === null) {
+					// ... initialize the KORONA API with some demo data
+					if (false) {
+						korona_plugin_api.initFromJson('{"application":{"key":"Demo","version":"1.0"}}');
+					} else {
+						korona_plugin_api.initFromJson('{' +
+							'"application":{"key":"Demo","version":"1.0"},' +
+							'"cashier":{"name":"Jon Doe","number":"1"},' +
+							'"inputLine":"",' +
+							'"organizationalUnit":{"name":"Store 1","number":"1"},' +
+							'"pos":{"name":"PoS 3","number":"03"},' +
+							'"receipt":{' +
+								'"accountTransactions":[],' +
+								'"cashier":{"name":"Jon Doe","number":"1"},' +
+								'"counter":0,' +
+								'"creationTime":"2014-12-12T19:45:08.000+01:00",' +
+								'"currency":{"isoCode":"EUR","name":"Euro","number":"1"},' +
+								'"customerGroup":{"name":"Demo sector","number":"1"},' +
+								'"modificationTime":"2014-12-16T19:12:11.144+01:00",' +
+								'"number":"100563",' +
+								'"organizationalUnit":{"name":"Demo store 1","number":"1"},' +
+								'"pos":{"name":"Kasse 3","number":"03"},' +
+								'"sales":[' +
+									'{' +
+									'"bookingTime":"2014-12-12T19:45:14.000+01:00",' +
+									'"cashier":{"name":"Jon Doe","number":"1"},' +
+									'"modifier":1,' +
+									'"description":"Coca Cola",' +
+									'"sortingOrder":0,' +
+									'"hierarchicalOutline":"1",' +
+									'"price":2.95,' +
+									'"product":{"name":"Coca Cola","number":"1001"},' +
+									'"quantity":5,' +
+									'"recognitionCode":"1001",' +
+									'"sector":{"name":"Demo sector","number":"1"},' +
+									'"taxPayments":[{"amount":2.35,"taxRate":19,"vat":true}],' +
+									'"total":{"gross":14.75,"net":12.4,"value":14.75}' +
+									'},{' +
+									'"bookingTime":"2014-12-12T19:45:20.000+01:00",' +
+									'"cashier":{"name":"Jon Doe","number":"1"},' +
+									'"modifier":2,' +
+									'"description":"Fanta",' +
+									'"sortingOrder":1,' +
+									'"hierarchicalOutline":"2",' +
+									'"price":3,' +
+									'"product":{"name":"Fanta","number":"1002"},' +
+									'"quantity":1,' +
+									'"recognitionCode":"1002",' +
+									'"sector":{"name":"Demo sector","number":"1"},' +
+									'"taxPayments":[{"amount":0.48,"taxRate":19,"vat":true}],' +
+									'"total":{"gross":3,"net":2.52,"value":3}' +
+									'},{' +
+									'"bookingTime":"2014-12-12T19:45:34.000+01:00",' +
+									'"cashier":{"name":"Jon Doe","number":"1"},' +
+									'"description":"Sprite",' +
+									'"sortingOrder":2,' +
+									'"hierarchicalOutline":"3",' +
+									'"price":3.95,' +
+									'"product":{"name":"Sprite","number":"1003"},' +
+									'"quantity":1,' +
+									'"recognitionCode":"1003",' +
+									'"sector":{"name":"Demo sector","number":"1"},' +
+									'"taxPayments":[{"amount":0.63,"taxRate":19,"vat":true}],' +
+									'"total":{"gross":3.95,"net":3.32,"value":3.95}' +
+									'},{' +
+									'"bookingTime":"2014-12-15T21:10:09.000+01:00",' +
+									'"cashier":{"name":"Jon Doe","number":"1"},' +
+									'"description":"Fanta",' +
+									'"modifier":4,' +
+									'"sortingOrder":3,' +
+									'"hierarchicalOutline":"4",' +
+									'"price":3,' +
+									'"product":{"name":"Fanta","number":"1002"},' +
+									'"quantity":1,' +
+									'"recognitionCode":"1002",' +
+									'"sector":{"name":"Demo sector","number":"1"},' +
+									'"taxPayments":[{"amount":0.48,"taxRate":19,"vat":true}],' +
+									'"total":{"gross":3,"net":2.52,"value":3}'+
+									'}' +
+								'],' +
+								'"total":{"gross":24.7,"net":20.76,"value":24.7},' +
+								'"voided":false' +
+							'},' +
+							'"systemCurrency":{"isoCode":"EUR","name":"Euro","number":"1"},' +
+							'"zcounter":24}');
+					}
+				};
+			};
+
+			function getWindowLocationUrlValue(val) {
+				var items = window.location.search.substr(1).split("&");
+				for (var index = 0; index < items.length; index++) {
+					var tmp = items[index].split("=");
+					if (tmp[0] === val)
+						return decodeURIComponent(tmp[1]);
+				}
+				return undefined;
+			}
+
+			function escapeSpecialChars(str) {
+				return str
+					.replace(/\\n/g, "\\n")
+					.replace(/\\'/g, "\\'")
+					.replace(/\\"/g, '\\"')
+					.replace(/\\&/g, "\\&")
+					.replace(/\\r/g, "\\r")
+					.replace(/\\t/g, "\\t")
+					.replace(/\\b/g, "\\b")
+					.replace(/\\f/g, "\\f");
+			};
+
+			function emptyToNull(obj) {
+				return (obj === '' || obj === null || isEmptyJsonObject(obj)) ? undefined : obj;
+			}
+
+			function isEmptyJsonObject(obj) {
+				var str = JSON.stringify(obj).replace(/\s+/g, '');
+				return str === '{}';
+			}
+
+			function parseDiscount(str) {
+				if (str === undefined || str == null || str === '')
+					return undefined;
+				var i = str.lastIndexOf('%');
+				if (i == -1)
+					return parseFloat(str);
+				return {percent: parseFloat(str.substr(0, i))};
+			};
+
+			function switchPercent(inputElement) {
+				if (inputElement.value === '')
+					return;
+				if (inputElement.value.indexOf('%') === -1)
+					inputElement.value = inputElement.value + '%';
+				else
+					inputElement.value = inputElement.value.replace('%', '');
+			}
+
+			function fillRequestLists() {
+				var modifiable = function(item) { return (typeof item.modifier === 'number'); };
+
+				fillReceiptItemsToSelect(document.modifyAccountTransaction.modifier, true, false, false, modifiable);
+				fillReceiptItemsToSelect(document.modifyPayment.modifier, false, true, false, modifiable);
+				fillReceiptItemsToSelect(document.modifySale.modifier, false, false, true, modifiable);
+
+				fillReceiptItemsToSelect(document.removeReceiptItem.modifier, true, true, true, modifiable);
+			}
+
+			function fillReceiptItemsToSelect(selectElement, accountTransactions, payments, sales, filter) {
+
+				function appendAndFilter(a, b) {
+					if (typeof b !== 'object')
+						return a;
+					if (typeof filter === 'function')
+						b = b.filter(filter);
+					return a.concat(b);
+				}
+
+				var receipt = korona_plugin_api.request.receipt;
+
+				var receiptItems = [];
+				if (accountTransactions)
+					receiptItems = appendAndFilter(receiptItems, receipt.accountTransactions);
+				if (payments)
+					receiptItems = appendAndFilter(receiptItems, receipt.payments);
+				if (sales)
+					receiptItems = appendAndFilter(receiptItems, receipt.sales);
+
+				receiptItems.sort(function(a, b) { return a.sortingOrder - b.sortingOrder; });
+
+				if (typeof filter === 'function')
+					receiptItems = receiptItems.filter(filter);
+
+				selectElement.innerHTML = '';
+				for (var i = 0; i < receiptItems.length; i++) {
+					var option = document.createElement("option");
+					option.setAttribute("value", receiptItems[i].modifier);
+					if (typeof receiptItems[i].modifier === 'number')
+						option.appendChild(document.createTextNode('(' + receiptItems[i].modifier + ') - ' + receiptItems[i].description));
+					else
+						option.appendChild(document.createTextNode(receiptItems[i].description));
+					selectElement.appendChild(option);
+				}
+			}
+
+			function fillActionsLists() {
+				fillActionsToSelect(document.startActions.actions);
+			}
+
+			function fillActionsToSelect(selectElement) {
+				selectElement.innerHTML = '';
+				for (var i = 0; i < korona_plugin_api.response.actions.length; i++) {
+					var action = korona_plugin_api.response.actions[i];
+					var option = document.createElement("option");
+					option.appendChild(document.createTextNode('[' + i + '] - ' + action.type));
+					selectElement.appendChild(option);
+				}
+			}
+
+			function submitIdentifyAs(form) {
+				korona_plugin_api.response.identifyAs(form.key.value, form.version.value);
+				return false;
+			}
+
+			function submitAddAccountTransaction(form) {
+				korona_plugin_api.response.addAccountTransaction({
+					accountNumber: emptyToNull(form.accountNumber.value),
+					amount: emptyToNull(form.amount.value),
+					fixedAmount: emptyToNull(form.fixedAmount.checked),
+					notRemovable: emptyToNull(form.notRemovable.checked),
+					customData: emptyToNull(form.customData.value)
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitAddPayment(form) {
+				korona_plugin_api.response.addPayment({
+					inputAmount: emptyToNull(form.inputAmount.value),
+					paymentMethodNumber: emptyToNull(form.paymentMethodNumber.value),
+					customData: emptyToNull(form.customData.value)
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitAddSale(form) {
+				korona_plugin_api.response.addSale({
+					discount: parseDiscount(emptyToNull(form.discount.value)),
+					infoTexts: emptyToNull(collectInfoTexts(form)),
+					price: emptyToNull(form.price.value),
+					quantity: emptyToNull(form.quantity.value),
+					recognitionCode: emptyToNull(form.recognitionCode.value),
+					useAlternativeSector: emptyToNull(form.useAlternativeSector.checked),
+					customData: emptyToNull(form.customData.value)
+				});
+				form.infoTexts.innerHTML = '';
+				form.reset();
+				return false;
+			}
+
+			function addInfoText(form) {
+				if (form.infoText.value === '')
+					return;
+				var option = document.createElement("option");
+				option.appendChild(document.createTextNode(form.infoText.value));
+				form.infoTexts.appendChild(option);
+				form.infoText.value = '';
+			}
+
+			function removeInfoText(form) {
+				if (form.infoTexts.selectedIndex === -1)
+					return;
+				form.infoTexts.remove(form.infoTexts.selectedIndex);
+			}
+
+			function collectInfoTexts(form) {
+				var options = [];
+				for (var i = 0; i < form.infoTexts.options.length; i++)
+					options.push(form.infoTexts.options[i].innerHTML);
+				return options;
+			}
+
+			function submitDisplayMessage(form) {
+				korona_plugin_api.response.displayMessage({
+					text: emptyToNull(form.text.value),
+					title: emptyToNull(form.title.value),
+					level: emptyToNull(form.level.value)
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitLogMessage(form) {
+				korona_plugin_api.response.logMessage({
+					text: emptyToNull(form.text.value),
+					level: emptyToNull(form.level.value)
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitModifyAccountTransaction(form) {
+				korona_plugin_api.response.modifyAccountTransaction({
+					modifier: form.modifier.value,
+					amount: emptyToNull(form.amount.value),
+					fixedAmount: emptyToNull(form.fixedAmount.checked),
+					notRemovable: emptyToNull(form.notRemovable.checked),
+					customData: emptyToNull(form.customData.value)
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitModifyPayment(form) {
+				korona_plugin_api.response.modifyPayment({
+					modifier: form.modifier.value,
+					customData: emptyToNull(form.customData.value)
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitModifySale(form) {
+				korona_plugin_api.response.modifySale({
+					modifier: form.modifier.value,
+					discount: parseDiscount(emptyToNull(form.discount.value)),
+					infoTexts: emptyToNull(collectInfoTexts(form)),
+					price: emptyToNull(form.price.value),
+					quantity: emptyToNull(form.quantity.value),
+					useAlternativeSector: emptyToNull(form.useAlternativeSector.value),
+					customData: emptyToNull(form.customData.value)
+				});
+				form.infoTexts.innerHTML = '';
+				form.reset();
+				return false;
+			}
+
+			function submitPrintMessage(form) {
+				korona_plugin_api.response.printMessage({
+					text: emptyToNull(form.text.value),
+					title: emptyToNull(form.title.value),
+					qrCode: emptyToNull(form.qrCode.value),
+					code39Barcode: emptyToNull(form.code39Barcode.value),
+					printFooter: emptyToNull(form.printFooter.checked),
+					printHeader: emptyToNull(form.printHeader.checked),
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitRemoveReceiptItem(form) {
+				korona_plugin_api.response.removeReceiptItem({
+					modifier: form.modifier.value
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitSetInputLine(form) {
+				korona_plugin_api.response.setInputLine({
+					value: emptyToNull(form.value.value)
+				});
+				form.reset();
+				return false;
+			}
+
+			function submitSetReceiptCustomer(form) {
+				korona_plugin_api.response.setReceiptCustomer({
+						address: emptyToNull({
+							city: emptyToNull(form.city.value),
+							country: emptyToNull(form.country.value),
+							line1: emptyToNull(form.line1.value),
+							line2: emptyToNull(form.line2.value),
+							postalCode: emptyToNull(form.postalCode.value),
+							state: emptyToNull(form.state.value)
+						}),
+						alternativePhone: emptyToNull(form.alternativePhone.value),
+						birthday: emptyToNull(form.birthday.value),
+						company: emptyToNull(form.company.value),
+						fax: emptyToNull(form.fax.value),
+						firstName: emptyToNull(form.firstName.value),
+						gender: emptyToNull(form.gender.value),
+						lastName: emptyToNull(form.lastName.value),
+						number: emptyToNull(form.number.value),
+						phone: emptyToNull(form.phone.value),
+						salutation: emptyToNull(form.salutation.value),
+						title: emptyToNull(form.title.value)
+				});
+				form.reset();
+				return false;
+			};
+
+			function submitSetReceiptDiscount(form) {
+				korona_plugin_api.response.setReceiptDiscount(
+					parseDiscount(emptyToNull(form.amount.value))
+				);
+				form.reset();
+				return false;
+			};
+
+			function submitSetReceiptCustomData(form) {
+				korona_plugin_api.response.setReceiptCustomData({
+					customData: emptyToNull(form.customData.value)
+				});
+				form.reset();
+				return false;
+			};
+
+			function submitCallExternalSystem(form) {
+				korona_plugin_api.response.callExternalSystem({
+					displayUrl: emptyToNull(form.displayUrl.value),
+					displayUrlPost: emptyToNull(form.displayUrlPost.checked),
+					systemUrl: emptyToNull(form.systemUrl.value),
+					login: emptyToNull(form.dontStoreLogin.value),
+					password: emptyToNull(form.dontStorePassword.value),
+					connectTimeoutMillis: emptyToNull(form.connectTimeoutMillis.value),
+					readTimeoutMillis: emptyToNull(form.readTimeoutMillis.value)
+				});
+				form.reset();
+				return false;
+			};
+
+			function submitUnsetReceiptCutomer(form) {
+				korona_plugin_api.response.unsetReceiptCutomer();
+				form.reset();
+				return false;
+			};
+
+			function submitSetReceiptOrderNumber(form) {
+				korona_plugin_api.response.setReceiptOrderNumber({
+					orderNumber: emptyToNull(form.orderNumber.value)
+				});
+				form.reset();
+				return false;
+			};
+
+		</script>
+	</head>
+
+	<body>
+
+		<div class="container-fluid">
+			<h1>Request</h1>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title"><a data-toggle="collapse" href="#requestDataCollapse">Click to view</a></h4>
+				</div>
+				<div id="requestDataCollapse" class="panel-collapse collapse in">
+					<div class="panel-body" id="requestData"></div>
+				</div>
+			</div>
+
+			<h1>Build a response object</h1>
+
+			<h2>Identify your application</h2>
+			<form class="form-inline" name="identifyAs" action="" onsubmit="return submitIdentifyAs(document.identifyAs);">
+				<div class="form-group">
+					<label class="sr-only" for="key">Key</label>
+					<input class="form-control" type="text" id="key" placeholder="Key">
+				</div>
+				<div class="form-group">
+					<label class="sr-only" for="version">Version</label>
+					<input class="form-control" type="text" id="version" placeholder="Version">
+				</div>
+				<div class="form-group">
+					<button class="btn btn-default" type="submit">Set</button>
+				</div>
+			</form>
+
+			<h2>Append actions</h2>
+			<div class="panel-group">
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse2">Add an account transaction</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse2">
+						<div class="panel-body">
+							<form class="form" name="addAccountTransaction" action="" onsubmit="return submitAddAccountTransaction(document.addAccountTransaction);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="accountNumber">Account number*</label>
+											<input class="form-control" type="text" name="accountNumber" required="required" placeholder="Account number*"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="amount">Amount*</label>
+											<input class="form-control" type="number" step="any" name="amount" required="required" placeholder="Amount*"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="customData">Custom data</label>
+											<input class="form-control" type="text" name="customData" placeholder="Custom data"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">	
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="checkbox">
+												<label for="fixedAmount">
+													<input type="checkbox" name="fixedAmount" value=""></input>Fixed amount
+												</label>
+											</div>
+										</div>
+									</div>									
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="checkbox">
+												<label for="notRemovable">
+													<input type="checkbox" name="notRemovable" value=""></input>Not removable
+												</label>
+											</div>
+										</div>
+									</div>									
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse7">Modify an account transaction</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse7">
+						<div class="panel-body">
+							<form class="form" name="modifyAccountTransaction" action="" onsubmit="return submitModifyAccountTransaction(document.modifyAccountTransaction);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="modifier">Item*</label>
+											<select class="form-control" name="modifier" required="required"></select>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="amount">Amount</label>
+											<input class="form-control" type="number" step="any" name="amount" placeholder="Amount"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="customData">Custom data</label>
+											<input class="form-control" type="text" name="customData" placeholder="Custom data"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="checkbox">
+												<label for="fixedAmount">
+													<input type="checkbox" name="fixedAmount" value=""></input>Fixed amount
+												</label>
+											</div>
+										</div>
+									</div>									
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="checkbox">
+												<label for="notRemovable">
+													<input type="checkbox" name="notRemovable" value=""></input>Not removable
+												</label>
+											</div>
+										</div>
+									</div>									
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse4">Add a sale</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse4">
+						<div class="panel-body">
+							<form class="form" name="addSale" action="" onsubmit="return submitAddSale(document.addSale);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="recognitionCode">Recognition code*</label>
+											<input class="form-control" type="text" name="recognitionCode" required="required" placeholder="Recognition code*"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="quantity">Quantity</label>
+											<input class="form-control" type="number" step="any" name="quantity" placeholder="Quantity"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="price">Price</label>
+											<input class="form-control" type="number" step="any" name="price" placeholder="Price"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="input-group">
+												<label class="sr-only" for="discount">Discount</label>
+												<input class="form-control" type="text" name="discount" placeholder="Discount"></input>
+												<div class="input-group-btn">
+													<button class="btn btn-default" type="button" onclick="switchPercent(document.addSale.discount);" >%</button>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="checkbox">
+												<label for="useAlternativeSector">
+													<input type="checkbox" name="useAlternativeSector" value=""></input>Use alternative sector
+												</label>
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="customData">Custom data</label>
+											<input class="form-control" type="text" name="customData" placeholder="Custom data"></input>
+										</div>
+									</div>
+								</div>
+
+								<fieldset>
+									<legend>Info texts</legend>
+									<div class="row">
+										<div class="col-xs-6">
+											<div class="form-group">
+												<div class="input-group">
+													<label class="sr-only" for="infoText">Text</label>
+													<textarea class="form-control" name="infoText" rows="2" placeholder="Text" style="height: 50px;"></textarea>
+													<div class="input-group-btn">
+														<button class="btn btn-default" type="button" onclick="addInfoText(document.addSale);" style="height: 50px;">Add</button>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-xs-6">
+											<div class="form-group">
+												<label class="sr-only" for="infoTexts">Info texts</label>
+												<select class="form-control" name="infoTexts" size="3"></select>
+												<button class="btn btn-default" type="button" onclick="removeInfoText(document.addSale);">Remove</button>
+											</div>
+										</div>
+									</div>
+								</fieldset>
+
+
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse9">Modify a sale</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse9">
+						<div class="panel-body">
+							<form class="form" name="modifySale" action="" onsubmit="return submitModifySale(document.modifySale);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label  class="sr-only" for="modifier">Item*</label>
+											<select class="form-control" name="modifier" required="required"></select>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="quantity">Quantity</label>
+											<input class="form-control" type="number" step="any" name="quantity" placeholder="Quantity"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="price">Price</label>
+											<input class="form-control" type="number" step="any" name="price" placeholder="Price"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="input-group">
+											<label class="sr-only" for="discount">Discount*</label>
+											<input class="form-control" type="text" name="discount" placeholder="Discount*"></input>
+											<div class="input-group-btn">
+												<button class="btn btn-default" type="button" onclick="switchPercent(document.modifySale.discount);" >%</button>
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="useAlternativeSector">Sector to use</label>
+											<select class="form-control" name="useAlternativeSector">
+												<option selected="selected" value="">No change to sector</option>
+												<option value="false">Change to standard sector</option>
+												<option value="true">Change to alternative sector</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="customData">Custom data</label>
+											<input class="form-control" type="text" name="customData" placeholder="Custom data"></input>
+										</div>
+									</div>
+								</div>
+								<fieldset>
+									<legend>Info texts</legend>
+									<div class="row">
+										<div class="col-xs-6">
+											<div class="form-group">
+												<div class="input-group">
+													<label class="sr-only" for="infoText">Text</label>
+													<textarea class="form-control" name="infoText" rows="2" placeholder="Text" style="height: 50px;"></textarea>
+													<div class="input-group-btn">
+														<button class="btn btn-default" type="button" onclick="addInfoText(document.modifySale);" style="height: 50px;">Add</button>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-xs-6">
+											<div class="form-group">
+												<label class="sr-only" for="infoTexts">Info texts</label>
+												<select class="form-control" name="infoTexts" size="3"></select>
+												<button class="btn btn-default"  type="button" type="button" onclick="removeInfoText(document.modifySale);">Remove</button>
+											</div>
+										</div>
+									</div>
+								</fieldset>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse3">Add a payment</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse3">
+						<div class="panel-body">
+							<form class="form" name="addPayment" action="" onsubmit="return submitAddPayment(document.addPayment);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="inputAmount">Input amount*</label>
+											<input class="form-control" type="number" step="any" name="inputAmount" required="required" placeholder="Input amount*"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="paymentMethodNumber">Payment method number</label>
+											<input class="form-control" type="text" name="paymentMethodNumber" placeholder="Payment method number"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="customData">Custom data</label>
+											<input class="form-control" type="text" name="customData" placeholder="Custom data"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse8">Modify a payment</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse8">
+						<div class="panel-body">
+							<form class="form" name="modifyPayment" action="" onsubmit="return submitModifyPayment(document.modifyPayment);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="modifier">Item*</label>
+											<select class="form-control" name="modifier" required="required"></select>
+										</div>
+									</div>
+									<div class="col-xs-4 col-xs-offset-4">
+										<div class="form-group">
+											<label class="sr-only" for="customData">Custom data</label>
+											<input class="form-control" type="text" name="customData" placeholder="Custom data"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse11">Remove an item from the receipt</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse11">
+						<div class="panel-body">
+							<form class="form" name="removeReceiptItem" action="" onsubmit="return submitRemoveReceiptItem(document.removeReceiptItem);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label for="modifier">Item*</label>
+											<select class="form-control" name="modifier" required="required"></select>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse14">Set receipt customer</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse14">
+						<div class="panel-body">
+							<form class="form" name="setReceiptCustomer" action="" onsubmit="return submitSetReceiptCustomer(document.setReceiptCustomer);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="number">Number</label>
+											<input class="form-control" type="text" name="number" placeholder="Number"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="salutation">Salutation</label>
+											<input class="form-control" type="text" name="salutation" placeholder="Salutation"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="title">Title</label>
+											<input class="form-control" type="text" name="title" placeholder="Title"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<div class="form-group">
+											<label class="sr-only" for="firstName">First name</label>
+											<input class="form-control" type="text" name="firstName" placeholder="First name"></input>
+										</div>
+									</div>
+									<div class="col-xs-6">
+										<div class="form-group">
+											<label class="sr-only" for="lastName">Last name</label>
+											<input class="form-control" type="text" name="lastName" placeholder="Last name"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-3">
+										<div class="form-group">
+											<label class="sr-only" for="company">Company</label>
+											<input class="form-control" type="text" name="company" placeholder="Company"></input>
+										</div>
+									</div>
+									<div class="col-xs-3">
+										<div class="form-group">
+											<label class="sr-only" for="phone">Phone</label>
+											<input class="form-control" type="text" name="phone" placeholder="Phone"></input>
+										</div>
+									</div>
+									<div class="col-xs-3">
+										<div class="form-group">
+											<label class="sr-only" for="alternativePhone">Phone (alternative)</label>
+											<input class="form-control" type="text" name="alternativePhone" placeholder="Phone (alternative)"></input>
+										</div>
+									</div>
+									<div class="col-xs-3">
+										<div class="form-group">
+											<label class="sr-only" for="fax">FAX</label>
+											<input class="form-control" type="text" name="fax" placeholder="FAX"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label for="gender" style="color:#999;">Gender</label>
+											<select class="form-control" name="gender">
+												<option></option>
+												<option value="MALE">MALE</option>
+												<option value="FEMAL">FEMALE</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											</select>
+											<label for="birthday" style="color:#999;">Birthday</label>
+											<input class="form-control" type="text" name="birthday" placeholder="YYYY-MM-DD"></input>
+										</div>
+									</div>
+								</div>
+								<fieldset>
+									<legend>Address</legend>
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="form-group">
+												<label class="sr-only" for="line1">Line 1</label>
+												<input class="form-control" type="text" name="line1" placeholder="Line 1"></input>
+											</div>
+										</div>
+										<div class="col-xs-12">
+											<div class="form-group">
+												<label class="sr-only" for="line2">Line 2</label>
+												<input class="form-control" type="text" name="line2" placeholder="Line 2"></input>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-6">
+											<div class="form-group">
+												<label class="sr-only" for="postalCode">Postal code</label>
+												<input class="form-control" type="text" name="postalCode" placeholder="Postal code"></input>
+											</div>
+										</div>
+										<div class="col-xs-6">
+											<div class="form-group">
+												<label class="sr-only" for="city">City</label>
+												<input class="form-control" type="text" name="city" placeholder="City"></input>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-6">
+											<div class="form-group">
+												<label class="sr-only" for="state">State</label>
+												<input class="form-control" type="text" name="state" placeholder="State"></input>
+											</div>
+										</div>
+										<div class="col-xs-6">
+											<div class="form-group">
+												<label class="sr-only" for="country">Country</label>
+												<input class="form-control" type="text" name="country" placeholder="Country"></input>
+											</div>
+									</div>
+								</fieldset>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse17">Unset receipt cutomer</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse17">
+						<div class="panel-body">
+							<form class="form" name="unsetReceiptCutomer" action="" onsubmit="return submitUnsetReceiptCutomer(document.unsetReceiptCutomer);">
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse15">Set receipt discount</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse15">
+						<div class="panel-body">
+							<form class="form" name="setReceiptDiscount" action="" onsubmit="return submitSetReceiptDiscount(document.setReceiptDiscount);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="input-group">
+												<label class="sr-only" for="amount">Discount*</label>
+												<input class="form-control" type="text" name="amount" placeholder="Discount*"></input>
+												<div class="input-group-btn">
+													<button class="btn btn-default" type="button" onclick="switchPercent(document.setReceiptDiscount.amount);" >%</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse16">Set custom data for the receipt</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse16">
+						<div class="panel-body">
+							<form class="form" name="setReceiptCustomData" action="" onsubmit="return submitSetReceiptCustomData(document.setReceiptCustomData);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="customData">Data</label>
+											<input class="form-control" type="text" name="customData" placeholder="Data"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse5">Display a message box</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse5">
+						<div class="panel-body">
+							<form class="form" name="displayMessage" action="" onsubmit="return submitDisplayMessage(document.displayMessage);">
+								<div class="row">
+									<div class="col-xs-6">
+										<div class="form-group">
+											<label class="sr-only" for="text">Text*</label>
+											<input class="form-control" type="text" name="text" required="required" placeholder="Text*"></input>
+										</div>
+									</div>
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="title">Title (not used)</label>
+											<input class="form-control" type="text" name="title" placeholder="Title (not used)"></input>
+										</div>
+									</div>
+									<div class="col-xs-2">
+										<div class="form-group">
+											<label class="sr-only" for="level">Level</label>
+											<select class="form-control" name="level">
+												<option>Default level</option>
+												<option value="INFO">INFO level</option>
+												<option value="WARN">WARN level</option>
+												<option value="ERROR">ERROR level</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse10">Print a message</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse10">
+						<div class="panel-body">
+							<form class="form" name="printMessage" action="" onsubmit="return submitPrintMessage(document.printMessage);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="checkbox">
+												<label for="printHeader">
+													<input type="checkbox" name="printHeader" value=""></input>Print receipt header
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<label class="sr-only" for="title">Title</label>
+											<input class="form-control" type="text" name="title" placeholder="Title"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<label class="sr-only" for="text">Text*</label>
+											<textarea class="form-control" name="text" required="required" rows="3" placeholder="Text*"></textarea>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="qrCode">QR code content</label>
+											<input class="form-control" type="text" name="qrCode" placeholder="QR code content"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="code39Barcode">Code-39 barcode</label>
+											<input class="form-control" type="text" name="code39Barcode" maxlength="24" placeholder="Code-39 barcode"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<div class="checkbox">
+												<label for="printFooter">
+													<input type="checkbox" name="printFooter" value=""></input>Print receipt footer
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse6">Log a message</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse6">
+						<div class="panel-body">
+							<form class="form" name="logMessage" action="" onsubmit="return submitLogMessage(document.logMessage);">
+								<div class="row">
+									<div class="col-xs-10">
+										<div class="form-group">
+											<label class="sr-only" for="text">Text*</label>
+											<input class="form-control" type="text" name="text" required="required" placeholder="Text*"></input>
+										</div>
+									</div>
+									<div class="col-xs-2">
+										<div class="form-group">
+											<label class="sr-only" for="level">Level</label>
+											<select class="form-control" name="level">
+												<option>Default level</option>
+												<option value="INFO">INFO level</option>
+												<option value="WARN">WARN level</option>
+												<option value="ERROR">ERROR level</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse12">Set content of the input line</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse12">
+						<div class="panel-body">
+							<form class="form" name="setInputLine" action="" onsubmit="return submitSetInputLine(document.setInputLine);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="value">New value to assign*</label>
+											<input class="form-control" type="text" name="value" required="required" placeholder="New value to assign*"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse13">Call an external system</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse13">
+						<div class="panel-body">
+							<form class="form" name="startExternalSystem" action="" onsubmit="return submitCallExternalSystem(document.startExternalSystem);">
+								<div class="row">
+									<div class="col-xs-10">
+										<div class="form-group">
+											<label class="sr-only" for="displayUrl">Display URL</label>
+											<input class="form-control" type="displayUrl" name="displayUrl" placeholder="Display URL"></input>
+										</div>
+									</div>
+									<div class="col-xs-2">
+										<div class="form-group">
+											<div class="checkbox">
+												<label for="displayUrlPost">
+													<input type="checkbox" name="displayUrlPost" checked="true"></input>POST request
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6">
+										<div class="form-group">
+											<label class="sr-only" for="systemUrl">System URL</label>
+											<input class="form-control" type="url" name="systemUrl" placeholder="System URL"></input>
+										</div>
+									</div>
+									<div class="col-xs-3">
+										<div class="form-group">
+											<label class="sr-only" for="dontStoreLogin">Login</label>
+											<input class="form-control" type="text" name="dontStoreLogin" placeholder="Login"></input>
+										</div>
+									</div>
+									<div class="col-xs-3">
+										<div class="form-group">
+											<label class="sr-only" for="dontStorePassword">Password</label>
+											<input class="form-control" type="password" name="dontStorePassword" placeholder="Password"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-2">
+										<div class="form-group">
+											<label for="connectTimeoutMillis">Connect timeout</label>
+											<input class="form-control" type="number" min="0" name="connectTimeoutMillis" placeholder="Milliseconds"></input>
+										</div>
+									</div>
+									<div class="col-xs-2">
+										<div class="form-group">
+											<label for="readTimeoutMillis">Read timeout</label>
+											<input class="form-control" type="number" min="0" name="readTimeoutMillis" placeholder="Milliseconds"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title"><a data-toggle="collapse" href="#collapse18">Set receipt order number</a></h4>
+					</div>
+					<div class="panel-collapse collapse" id="collapse18">
+						<div class="panel-body">
+							<form class="form" name="setReceiptOrderNumber" action="" onsubmit="return submitSetReceiptOrderNumber(document.setReceiptOrderNumber);">
+								<div class="row">
+									<div class="col-xs-4">
+										<div class="form-group">
+											<label class="sr-only" for="customData">Order number</label>
+											<input class="form-control" type="text" name="orderNumber" placeholder="Order number"></input>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="form-group">
+											<button class="btn btn-primary" type="submit">Append this action</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<h2>Remove actions</h2>
+			<form class="form-inline" name="startActions" action="" onsubmit="korona_plugin_api.response.startActions(); return false;">
+				<div class="form-group">
+					<label class="sr-only" for="actions">Actions</label>
+					<select class="form-control" name="actions"></select>
+				</div>
+				<button class="btn btn-default" type="button" onclick="korona_plugin_api.response.removeAction(document.startActions.actions.selectedIndex);">Remove selected</button>
+				<button class="btn btn-warning" type="submit">Remove all</button>
+				<p></p>
+			</form>
+
+			<hr />
+
+			<h1>Response</h1>
+
+			<p id="responseData"></p>
+
+			<hr />
+			<form class="form-inline" name="backToKoronaForm" action="">
+				<button class="btn btn-primary" type="button" onclick="korona_plugin_api.backToKorona();">Back to KORONA.pos-Client</button>
+				<button class="btn btn-default" type="button" onclick="korona_plugin_api.showOsk();">Show screen keyboard</button>
+				<button class="btn btn-default" type="button" onclick="korona_plugin_api.hideOsk();">Hide screen keyboard</button>
+			</form>
+			<p></p>
+		</div>
+	</body>
+</html>
