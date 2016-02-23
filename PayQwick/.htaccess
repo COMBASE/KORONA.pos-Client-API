@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteRule "([^/]*)/(.*).js" "$2.js" [PT]
+RewriteRule "([^/]*)/(.*).css" "$2.css" [PT]
+RewriteRule "([^/]*)/payQwick.php" "index.php?data=$1" [PT]
+RewriteRule "([^/]*)/payQwickRequest.php" "payQwickRequest.php" [PT]
