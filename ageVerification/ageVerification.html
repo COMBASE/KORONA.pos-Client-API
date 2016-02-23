@@ -171,7 +171,7 @@ body {
 				if (!sectors[item.sector.number])
 				{
 					document.getElementById("debug").innerHTML += "item sector has no age restriction <br />";
-					return;
+					continue;
 				}
 
 				var minAge = sectors[item.sector.number];
