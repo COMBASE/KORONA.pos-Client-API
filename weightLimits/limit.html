@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>COMBASE KORONA.pos Client API Demo</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+
+<!-- 
+<script src="jquery.min.js"></script>
+jQuery -->
+
+<!-- KORONA.pos-Client API module -->
+<script type="text/javascript" src="korona-plugin-api.js"></script>
+
+
+<script type="text/javascript">
+
+	
+	function extractWeight(str)
+	{
+            ret = str.replace(/^.*?(\d+\.?\d*)g.*$/i, "\$1");
+            if (ret.length > 0)
+                return parseFloat(ret);
+            return -1;
+	}
+
+	function verify()
+	{
+		document.getElementById("debug").innerHTML += "verify <br />";
+		
+		
+		limits = [];
+		sums = [];
+		if (receipt)
+		{
+			for (index = 0; index < receipt.sales.length; index++)
+			{
+				document.getElementById("debug").innerHTML += "check item "+index+" \n";
+				
+				var item = receipt.sales[index];
+				
+				itemWeight = extractWeight(item.product.name);
+				if (itemWeight <= 0)
+                                    continue;
+                                
+				sectorLimit = extractWeight(item.sector.name);
+				if (!limits[item.sector.name] && sectorLimit > 0)
+				{
+					document.getElementById("debug").innerHTML += "adding new sector \n";
+					
+					limits[item.sector.name] = sectorLimit;
+				}
+
+				subtotal = 0;
+				if (sums[item.sector.name])
+                                    subtotal = sums[item.sector.name];
+                                subtotal += itemWeight * item.quantity;
+                                
+                                sums[item.sector.name] = subtotal;
+			}
+			
+			for(var sector in limits) { 
+                            limit = limits[sector]; 
+                            sum = sums[sector];
+                            
+                            
+                            document.getElementById("debug").innerHTML += "limit:"+limit+" sum:"+sum+" \n";
+					
+                            if (limit < sum)
+                            {
+                                over = sum - limit;
+                                msg = "You exceeded the limit for '"+sector+"' by "+over+"g";
+                                document.getElementById("debug").innerHTML += "display: "+msg+" \n";
+                                korona_plugin_api.response.displayMessage({
+                                    text: msg,
+                                    level: "WARN"
+                                });
+                            }
+                        }
+		}
+		else
+			document.getElementById("debug").innerHTML += "receipt is null <br />";
+	}
+
+
+	korona_plugin_api.response.identifyAs("KORONA.pos Weigth Limit", "1");
+
+	window.onload = function myOnLoadFunc() {
+		korona_plugin_api.ready(function myReadyFunc() {
+
+			document.getElementById("debug").innerHTML += "load receipt <br />";
+			
+			receipt = korona_plugin_api.request.receipt;
+
+			document.getElementById("debug").innerHTML += JSON.stringify(receipt)+"<br />";
+
+			verify();
+			
+			korona_plugin_api.backToKorona();
+			
+		});
+	};
+
+	
+</script>
+
+
+<head>
+
+
+<body>
+Please wait...
+<pre id="debug"> </pre>
+<script>
+
+        document.getElementById("debug").innerHTML += extractWeight("Amazing Item 0.45g package")+'\n';
+        document.getElementById("debug").innerHTML += extractWeight("Amazing Item 5g package")+'\n';
+        document.getElementById("debug").innerHTML += extractWeight("Amazing Item 1.2g package")+'\n';
+</script>
+</body>
+</html>
