@@ -19,6 +19,7 @@ jQuery -->
 	
 	function extractWeight(str)
 	{
+	    str = str.replace(/ \./i, " 0.");
             ret = str.replace(/^.*?(\d+\.?\d*)g.*$/i, "\$1");
             if (ret.length > 0)
                 return parseFloat(ret);
