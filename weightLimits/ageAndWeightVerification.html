@@ -54,20 +54,24 @@ body {
 
 	errors = 0;
 
-	function extractWeight(str)
-	{
-	    str = str.replace(/ \./i, " 0.");
+        function extractWeight(str)
+        {
+            str = str.replace(/ \./i, " 0.");
             ret = str.replace(/^.*?(\d+\.?\d*)g.*$/i, "\$1");
-            if (ret.length > 0)
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
+            if (ret.length > 0 && parseFloat(ret) > 0)
                 return parseFloat(ret);
             ret = str.replace(/^.*?(\d+\.?\d*)oz.*$/i, "\$1");
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
             if (ret.length > 0)
                 return parseFloat(ret);
             ret = str.replace(/^.*?(\d+\.?\d*)ml.*$/i, "\$1");
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
             if (ret.length > 0)
                 return parseFloat(ret);
             return -1;
-	}
+        }
+
 
 	function checkWeight()
 	{
