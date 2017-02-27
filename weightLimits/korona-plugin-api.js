@@ -210,6 +210,16 @@ korona_plugin_api = new function() {
 			this.modified.notify();
 			return this;
 		};
+		this.setReceiptCustomerGroup = function(paramObj) {
+			if (typeof paramObj === 'string')
+				paramObj = {number: paramObj};
+			this.actions.push({
+				type: 'setReceiptCustomerGroupAction',
+				customerGroupNumber: paramObj.customerGroupNumber,
+			});
+			this.modified.notify();
+			return this;
+		};
 
 		this.setReceiptDiscount = function(paramObj) {
 			this.actions.push({

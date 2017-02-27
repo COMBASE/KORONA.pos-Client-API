@@ -52,6 +52,7 @@ body {
 
 <script type="text/javascript">
 
+	errors = 0;
 
 	function extractWeight(str)
 	{
@@ -70,7 +71,7 @@ body {
 
 	function checkWeight()
 	{
-		document.getElementById("debug").innerHTML += "verify <br />";
+		document.getElementById("debug").innerHTML += "checkWeight <br />";
 		
 		
 		limits = [];
@@ -118,6 +119,8 @@ body {
                                     text: msg,
                                     level: "WARN"
                                 });
+
+				errors++;
                             }
                         }
 		}
@@ -133,6 +136,7 @@ body {
 	// sector #916 has age restriction of 16
 	sectors = {921:21, 918:18, 916:16};
 
+	customerGroups = {200:201, 300:301, 400:401};
 
 	// check value
 	function intVal(value, altValue)
@@ -176,6 +180,7 @@ body {
 
 	function previewItems()
 	{
+		document.getElementById("debug").innerHTML += "previewItems() <br />";
 		var text = "";
 		for	(index = 0; index < removedItems.length; index++)
 		{
@@ -197,21 +202,26 @@ body {
 			 submit.innerHTML = "Remove restricted items";
 			 //submit.style.backgroundColor = "red";
 		}
+		
+		document.getElementById("debug").innerHTML += "previewItems() - end <br />";
 			
 	}
 	
 	function removeItemsAndClose()
 	{
 		var text = "The following items have been removed: \n";
+		error = 0;
 		for	(index = 0; index < removedItems.length; index++)
 		{
 		    text += removedItems[index].decription + " (" + removedItems[index].quantity + ")";
 			if (index < removedItems.length - 1)
 				text += ", \n";
 
-			korona_plugin_api.response.removeReceiptItem({
-				modifier: removedItems[index].modifier,
-			});
+//			korona_plugin_api.response.removeReceiptItem({
+//				modifier: removedItems[index].modifier,
+//			});
+                        document.getElementById("debug").innerHTML += "remove "+removedItems[index].decription+"<br />";
+			error++;
 			
 		}
 		if (removedItems.length > 0)
@@ -220,6 +230,20 @@ body {
 				text: text,
 				level: "WARN"
 			});
+		}
+	
+                if (receipt)
+                    cuGr = receipt.customerGroup.number;
+                else
+                    cuGr = 200;
+                document.getElementById("debug").innerHTML += "look up customer group for "+cuGr+"<br />";
+		if (error < 1 && customerGroups[cuGr])
+		{
+                    newCuGr = customerGroups[cuGr];
+                    document.getElementById("debug").innerHTML += "set new customer group "+newCuGr+"<br />";
+                    korona_plugin_api.response.setReceiptCustomerGroup({
+                        customerGroupNumber: newCuGr
+                    });
 		}
 
 		korona_plugin_api.backToKorona();
@@ -368,7 +392,7 @@ body {
 				<div class="form-group">
 					<label class="sr-only" for="year">Day*</label> <input
 						class="form-control" type="text" name="day" id="day" rows="1" onchange="verify()"
-						required="required" placeholder="Day" value="31" onkeyup="verify()" style="width:60px;height:50px"></input>
+						required="required" placeholder="Day" value="31"  nkeyup="verify()" style="width:60px;height:50px"></input>
 				</div>
 			</div>
 		</div>
@@ -387,7 +411,7 @@ body {
 		<div class="row">
 			<div class="col-xs-12">
 				<div class="form-group">
-					<button class="btn btn-primary" id="submit" type="submit">Apply</button>
+					<button class="btn btn-primary" id="submit" onclick="removeItemsAndClose(); return false;">Apply</button>
 
 					<!-- 
 					<button class="btn btn-secundary"
@@ -411,6 +435,5 @@ body {
 	<script type="text/javascript">
 		document.getElementById("year").focus();
 	</script>
-	<pre id="debug"> </pre>
 </body>
 </html>
