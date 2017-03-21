@@ -94,7 +94,7 @@ body {
 				year += 2000;
 		}
 
-		var birthday = new Date(year, month, day);
+		var birthday = new Date(year, month-1, day);
 
 		var ageDifMs = Date.now() - birthday.getTime();
 	    var ageDate = new Date(ageDifMs); 

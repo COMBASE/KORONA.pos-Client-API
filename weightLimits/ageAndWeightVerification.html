@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>COMBASE KORONA.pos Client API Demo</title>
+<title>COMBASE KORONA.pos Client Age and Weight Verification</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
@@ -174,7 +174,7 @@ body {
 				year += 2000;
 		}
 
-		var birthday = new Date(year, month, day);
+		var birthday = new Date(year, month-1, day);
 
 		var ageDifMs = Date.now() - birthday.getTime();
 	    var ageDate = new Date(ageDifMs); 
