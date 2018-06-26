@@ -1,122 +1,123 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>COMBASE KORONA.pos Client Age and Weight Verification</title>
+<!DOCTYPE html>                                                                                                                                                                                                                                       
+<html>                                                                                                                                                                                                                                                
+<head>                                                                                                                                                                                                                                                
+<title>Age and Weight Verification v2</title>                                                                                                                                                                                                         
+                                                                                                                                                                                                                                                      
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />                                                                                                                                                                                 
+                                                                                                                                                                                                                                                      
+<!-- Syntax highlighter-->                                                                                                                                                                                                                            
+<link rel="stylesheet"                                                                                                                                                                                                                                
+        href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"></link>                                                                                                                                                  
+<script type="text/javascript"                                                                                                                                                                                                                        
+        src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>                                                                                                                                                       
+                                                                                                                                                                                                                                                      
+<script src="http://codemirror.net/lib/codemirror.js"></script>                                                                                                                                                                                       
+<link rel="stylesheet" href="http://codemirror.net/lib/codemirror.css">                                                                                                                                                                               
+<script src="http://codemirror.net/mode/javascript/javascript.js"></script>                                                                                                                                                                           
+<script src="http://codemirror.net/addon/fold/foldcode.js"></script>                                                                                                                                                                                  
+<link rel="stylesheet"                                                                                                                                                                                                                                
+        href="http://codemirror.net/addon/fold/foldgutter.css"></link>                                                                                                                                                                                
+<script src="http://codemirror.net/addon/fold/foldgutter.js"></script>                                                                                                                                                                                
+<script src="http://codemirror.net/addon/fold/brace-fold.js"></script>                                                                                                                                                                                
+                                                                                                                                                                                                                                                      
+<!-- jQuery -->                                                                                                                                                                                                                                       
+<script src="jquery.min.js"></script>                                                                                                                                                                                                                 
+                                                                                                                                                                                                                                                      
+<!-- Bootstrap -->                                                                                                                                                                                                                                    
+<link rel="stylesheet" href="bootstrap.min.css"></link>                                                                                                                                                                                               
+<link rel="stylesheet" href="bootstrap-theme.min.css"></link>                                                                                                                                                                                         
+<script src="bootstrap.min.js"></script>                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                      
+<!-- KORONA.pos-Client API module -->                                                                                                                                                                                                                 
+<script type="text/javascript" src="korona-plugin-api.js"></script>                                                                                                                                                                                   
+<link rel="stylesheet" href="koronaposclient.css"></link>                                                                                                                                                                                             
+                                                                                                                                                                                                                                                      
+<style>                                                                                                                                                                                                                                               
+code, kbd, pre, samp {                                                                                                                                                                                                                                
+        font-family: monospace;                                                                                                                                                                                                                       
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+body {                                                                                                                                                                                                                                                
+        font-family: "Roboto", "Helvetica", "Arial", sans-serif;                                                                                                                                                                                      
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+.CodeMirror {                                                                                                                                                                                                                                         
+        height: auto;                                                                                                                                                                                                                                 
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+.develop {                                                                                                                                                                                                                                            
+        display: none;                                                                                                                                                                                                                                
+}                                                                                                                                                                                                                                                     
+</style>                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                      
+<script type="text/javascript">                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                                      
+        errors = 0;                                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                                      
+        function extractWeight(str)                                                                                                                                                                                                                   
+        {                                                                                                                                                                                                                                             
+            str = str.replace(/ \./i, " 0.");                                                                                                                                                                                                         
+            ret = str.replace(/^.*?(\d+\.?\d*)g.*$/i, "\$1");                                                                                                                                                                                         
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";                                                                                                                                                                         
+            if (ret.length > 0 && parseFloat(ret) > 0)                                                                                                                                                                                                
+                return parseFloat(ret);                                                                                                                                                                                                               
+            ret = str.replace(/^.*?(\d+\.?\d*)oz.*$/i, "\$1");                                                                                                                                                                                        
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";                                                                                                                                                                         
+            if (ret.length > 0)                                                                                                                                                                                                                       
+                return parseFloat(ret);                                                                                                                                                                                                               
+            ret = str.replace(/^.*?(\d+\.?\d*)ml.*$/i, "\$1");                                                                                                                                                                                        
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";                                                                                                                                                                         
+            if (ret.length > 0)                                                                                                                                                                                                                       
+                return parseFloat(ret);                                                                                                                                                                                                               
+            return -1;                                                                                                                                                                                                                                
+        }                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                                      
+        function checkWeight()                                                                                                                                                                                                                        
+        {                                                                                                                                                                                                                                             
+                document.getElementById("debug").innerHTML += "checkWeight <br />";                                                                                                                                                                   
+                                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                                      
+                limits = [];
+                sums = [];
+                if (receipt)
+                {
+                        for (index = 0; index < receipt.sales.length; index++)
+                        {
+                                document.getElementById("debug").innerHTML += "check item "+index+" \n";
 
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                                var item = receipt.sales[index];
 
-<!-- Syntax highlighter-->
-<link rel="stylesheet"
-	href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"></link>
-<script type="text/javascript"
-	src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
-
-<script src="http://codemirror.net/lib/codemirror.js"></script>
-<link rel="stylesheet" href="http://codemirror.net/lib/codemirror.css">
-<script src="http://codemirror.net/mode/javascript/javascript.js"></script>
-<script src="http://codemirror.net/addon/fold/foldcode.js"></script>
-<link rel="stylesheet"
-	href="http://codemirror.net/addon/fold/foldgutter.css"></link>
-<script src="http://codemirror.net/addon/fold/foldgutter.js"></script>
-<script src="http://codemirror.net/addon/fold/brace-fold.js"></script>
-
-<!-- jQuery -->
-<script src="jquery.min.js"></script>
-
-<!-- Bootstrap -->
-<link rel="stylesheet" href="bootstrap.min.css"></link>
-<link rel="stylesheet" href="bootstrap-theme.min.css"></link>
-<script src="bootstrap.min.js"></script>
-
-<!-- KORONA.pos-Client API module -->
-<script type="text/javascript" src="korona-plugin-api.js"></script>
-<link rel="stylesheet" href="koronaposclient.css"></link>
-
-<style>
-code, kbd, pre, samp {
-	font-family: monospace;
-}
-
-body {
-	font-family: "Roboto", "Helvetica", "Arial", sans-serif;
-}
-
-.CodeMirror {
-	height: auto;
-}
-
-.develop {
-	display: none;
-}
-</style>
-
-<script type="text/javascript">
-
-	errors = 0;
-
-        function extractWeight(str)
-        {
-            str = str.replace(/ \./i, " 0.");
-            ret = str.replace(/^.*?(\d+\.?\d*)g.*$/i, "\$1");
-            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
-            if (ret.length > 0 && parseFloat(ret) > 0)
-                return parseFloat(ret);
-            ret = str.replace(/^.*?(\d+\.?\d*)oz.*$/i, "\$1");
-            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
-            if (ret.length > 0)
-                return parseFloat(ret);
-            ret = str.replace(/^.*?(\d+\.?\d*)ml.*$/i, "\$1");
-            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
-            if (ret.length > 0)
-                return parseFloat(ret);
-            return -1;
-        }
-
-
-	function checkWeight()
-	{
-		document.getElementById("debug").innerHTML += "checkWeight <br />";
-		
-		
-		limits = [];
-		sums = [];
-		if (receipt)
-		{
-			for (index = 0; index < receipt.sales.length; index++)
-			{
-				document.getElementById("debug").innerHTML += "check item "+index+" \n";
-				
-				var item = receipt.sales[index];
-				
-				itemWeight = extractWeight(item.product.name);
-				if (itemWeight <= 0)
+                                itemWeight = extractWeight(item.product.name);
+                                if (itemWeight <= 0)
                                     continue;
                                 
-				sectorLimit = extractWeight(item.sector.name);
-				if (!limits[item.sector.name] && sectorLimit > 0)
-				{
-					document.getElementById("debug").innerHTML += "adding new sector \n";
-					
-					limits[item.sector.name] = sectorLimit;
-				}
-				subtotal = 0;
-				if (sums[item.sector.name])
+                                sectorLimit = extractWeight(item.sector.name);
+                                if (!limits[item.sector.name] && sectorLimit > 0)
+                                {
+                                        document.getElementById("debug").innerHTML += "adding new sector \n";
+
+                                        limits[item.sector.name] = sectorLimit;
+                                }
+                                subtotal = 0;
+                                if (sums[item.sector.name])
                                     subtotal = sums[item.sector.name];
                                 subtotal += itemWeight * item.quantity;
                                 
                                 sums[item.sector.name] = subtotal;
-			}
-			
-			for(var sector in limits) { 
+                        }
+
+                        for(var sector in limits) { 
                             limit = limits[sector]; 
                             sum = sums[sector];
-                            
+                            limit = (Math.round(limit*100)/100);
+                            sum = (Math.round(sum*100)/100);
                             
                             document.getElementById("debug").innerHTML += "limit:"+limit+" sum:"+sum+" \n";
-					
+
                             if (limit < sum)
                             {
-                                over = sum - limit;
+                                over =  (Math.round(sum - limit*100)/100);;
                                 msg = "You exceeded the limit for '"+sector+"' by "+over+"g";
                                 document.getElementById("debug").innerHTML += "display: "+msg+" \n";
                                 korona_plugin_api.response.displayMessage({
@@ -124,245 +125,245 @@ body {
                                     level: "WARN"
                                 });
 
-				errors++;
+                                errors++;
                             }
                         }
-		}
-		else
-			document.getElementById("debug").innerHTML += "receipt is null <br />";
-	}
-	
-	removedItems = [];
-	
-	// sector age restriction
-	// sector #921 has age restriction of 21
-	// sector #918 has age restriction of 18
-	// sector #916 has age restriction of 16
-	sectors = {921:21, 918:18, 916:16};
+                }
+                else
+                        document.getElementById("debug").innerHTML += "receipt is null <br />";
+        }
 
-	customerGroups = {200:201, 300:301, 400:401};
+        removedItems = [];
 
-	// check value
-	function intVal(value, altValue)
-	{
-		if (!value)
-			return altValue;
+        // sector age restriction
+        // sector #921 has age restriction of 21
+        // sector #918 has age restriction of 18
+        // sector #916 has age restriction of 16
+        sectors = {1:21, 2:21, 3:21, 4:21, 5:21, 6:21, 7:21, 8:21, 9:21, 10:21, 11:18, 12:18, 13:18, 14:18, 15:18, 16:18, 17:18, 18:18, 19:18, 20:21, 100:21};
 
-		var intVal = parseInt(value, 10);
+        customerGroups = {501:1, 502:2, 503:3, 504:4, 505:5, 506:6, 507:7, 508:8, 509:9, 510:10, 511:11, 512:12, 513:13, 514:14, 515:15, 516:16, 517:17, 518:18, 519:19, 520:20, 521:21, 522:22, 523:23, 524:24, 525:25, 526:26, 527:27, 528:28, 529:29, 530:30, 531:31, 532:32, 533:33, 534:34, 535:35, 536:36, 537:37, 538:38, 539:39, 540:40};
 
-		if (intVal == "NaN" || intVal < 1)
-			return altValue;
+        // check value
+        function intVal(value, altValue)
+        {
+                if (!value)
+                        return altValue;
 
-		return intVal;
-	}
-	
-	function getAge()
-	{
-		var f = document.getElementById("form1");
-		var year = intVal(f.year.value, new Date().getFullYear());
-		var month = intVal(f.month.value, 12);
-		var day = intVal(f.day.value, 31);
+                var intVal = parseInt(value, 10);
 
-		document.getElementById("debug").innerHTML += "getAge() "+year+"-"+month+"-"+day+"<br />";
+                if (intVal == "NaN" || intVal < 1)
+                        return altValue;
 
-		// transform two digit year into full number
-		if (year < 100)
-		{
-			if (2000+year > currentYear)
-				year += 1900;
-			else
-				year += 2000;
-		}
+                return intVal;
+        }
 
-		var birthday = new Date(year, month-1, day);
+        function getAge()
+        {
+                var f = document.getElementById("form1");
+                var year = intVal(f.year.value, new Date().getFullYear());
+                var month = intVal(f.month.value, 12);
+                var day = intVal(f.day.value, 31);
 
-		var ageDifMs = Date.now() - birthday.getTime();
-	    var ageDate = new Date(ageDifMs); 
-	    
-	    return Math.abs(ageDate.getUTCFullYear() - 1970);
-	}
+                document.getElementById("debug").innerHTML += "getAge() "+year+"-"+month+"-"+day+"<br />";
 
-	function previewItems()
-	{
-		document.getElementById("debug").innerHTML += "previewItems() <br />";
-		var text = "";
-		for	(index = 0; index < removedItems.length; index++)
-		{
-		    text += removedItems[index].product.name;
-			if (index < removedItems.length - 1)
-				text += ", ";
-		}
+                // transform two digit year into full number
+                if (year < 100)
+                {
+                        if (2000+year > currentYear)
+                                year += 1900;
+                        else
+                                year += 2000;
+                }
 
-		document.getElementById("removedItemsPreview").innerHTML = text;
+                var birthday = new Date(year, month - 1, day);
 
-		var submit = document.getElementById("submit");
-		if (removedItems.length < 1)
-		{
-			 submit.innerHTML = "All items approved";
-			// submit.style.backgroundColor = "green";
-		}
-		else
-		{
-			 submit.innerHTML = "Remove restricted items";
-			 //submit.style.backgroundColor = "red";
-		}
-		
-		document.getElementById("debug").innerHTML += "previewItems() - end <br />";
-			
-	}
-	
-	function removeItemsAndClose()
-	{
-		var text = "The following items have been removed: \n";
-		error = 0;
-		for	(index = 0; index < removedItems.length; index++)
-		{
-		    text += removedItems[index].decription + " (" + removedItems[index].quantity + ")";
-			if (index < removedItems.length - 1)
-				text += ", \n";
+                var ageDifMs = Date.now() - birthday.getTime();
+            var ageDate = new Date(ageDifMs); 
+            
+            return Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
 
-//			korona_plugin_api.response.removeReceiptItem({
-//				modifier: removedItems[index].modifier,
-//			});
+        function previewItems()
+        {
+                document.getElementById("debug").innerHTML += "previewItems() <br />";
+                var text = "";
+                for     (index = 0; index < removedItems.length; index++)
+                {
+                    text += removedItems[index].product.name;
+                        if (index < removedItems.length - 1)
+                                text += ", ";
+                }
+
+                document.getElementById("removedItemsPreview").innerHTML = text;
+
+                var submit = document.getElementById("submit");
+                if (removedItems.length < 1)
+                {
+                         submit.innerHTML = "All items approved";
+                        // submit.style.backgroundColor = "green";
+                }
+                else
+                {
+                         submit.innerHTML = "Remove restricted items";
+                         //submit.style.backgroundColor = "red";
+                }
+
+                document.getElementById("debug").innerHTML += "previewItems() - end <br />";
+
+        }
+
+        function removeItemsAndClose()
+        {
+                var text = "The following items have been removed: \n";
+                error = 0;
+                for     (index = 0; index < removedItems.length; index++)
+                {
+                    text += removedItems[index].decription + " (" + removedItems[index].quantity + ")";
+                        if (index < removedItems.length - 1)
+                                text += ", \n";
+
+//                      korona_plugin_api.response.removeReceiptItem({
+//                              modifier: removedItems[index].modifier,
+//                      });
                         document.getElementById("debug").innerHTML += "remove "+removedItems[index].decription+"<br />";
-			error++;
-			
-		}
-		if (removedItems.length > 0)
-		{
-			korona_plugin_api.response.logMessage({
-				text: text,
-				level: "WARN"
-			});
-		}
-	
+                        error++;
+
+                }
+                if (removedItems.length > 0)
+                {
+                        korona_plugin_api.response.logMessage({
+                                text: text,
+                                level: "WARN"
+                        });
+                }
+
                 if (receipt)
                     cuGr = receipt.customerGroup.number;
                 else
                     cuGr = 200;
                 document.getElementById("debug").innerHTML += "look up customer group for "+cuGr+"<br />";
-		if (error < 1 && customerGroups[cuGr])
-		{
+                if (error < 1 && customerGroups[cuGr])
+                {
                     newCuGr = customerGroups[cuGr];
                     document.getElementById("debug").innerHTML += "set new customer group "+newCuGr+"<br />";
                     korona_plugin_api.response.setReceiptCustomerGroup({
                         customerGroupNumber: newCuGr
                     });
-		}
+                }
 
-		korona_plugin_api.backToKorona();
-					
-	}
+                korona_plugin_api.backToKorona();
 
-	function verify()
-	{
-		document.getElementById("debug").innerHTML += "verify <br />";
-		var age = getAge();
-		removedItems = [];
-		//var receipt = korona_plugin_api.request.receipt;
-		if (receipt)
-		{
-			for	(index = 0; index < receipt.sales.length; index++)
-			{
-				document.getElementById("debug").innerHTML += "check item "+index+" <br />";
-				
-				var item = receipt.sales[index];
-				
-				if (!sectors[item.sector.number])
-				{
-					document.getElementById("debug").innerHTML += "item sector has no age restriction <br />";
-					continue;
-				}
+        }
 
-				var minAge = sectors[item.sector.number];
-				var age = getAge();
-				
-				if (minAge > age)
-					removedItems.push(item);
-			}
-		}
-		else
-			document.getElementById("debug").innerHTML += "receipt is null <br />";
-		
-		previewItems();
-	}
+        function verify()
+        {
+                document.getElementById("debug").innerHTML += "verify <br />";
+                var age = getAge();
+                removedItems = [];
+                //var receipt = korona_plugin_api.request.receipt;
+                if (receipt)
+                {
+                        for     (index = 0; index < receipt.sales.length; index++)
+                        {
+                                document.getElementById("debug").innerHTML += "check item "+index+" <br />";
 
-	function checkYear()
-	{
-		var f = document.getElementById("form1");
-		var strValue = f.year.value;
-		var year = intVal(strValue, -1);
-		if (year < 0)
-			return false;
+                                var item = receipt.sales[index];
 
-		if (year == 19 || year == 20)
-			return false;
+                                if (!sectors[item.sector.number])
+                                {
+                                        document.getElementById("debug").innerHTML += "item sector has no age restriction <br />";
+                                        continue;
+                                }
 
-		if (strValue.length == 2)
-		{
-			f.month.focus();
-			f.month.select();
-			verify();
-		}
-		
-		if (strValue.length == 4 && year > 1900 && year < 2100)
-		{
-			f.month.focus();
-			f.month.select();
-			verify();
+                                var minAge = sectors[item.sector.number];
+                                var age = getAge();
 
-			return true;
-		}
+                                if (minAge > age)
+                                        removedItems.push(item);
+                        }
+                }
+                else
+                        document.getElementById("debug").innerHTML += "receipt is null <br />";
 
-		return false;
-	}
-	
-	function verifyMonth()
-	{
-		var f = document.getElementById("form1");
-		var strValue = f.month.value;
-		var month = intVal(strValue, -1);
-		if (month < 0)
-			return false;
+                previewItems();
+        }
 
-		if (strValue.length > 2)
-			return false;
-		
-		if (strValue.length == 2 && month > 0 && month < 13)
-		{
-			f.day.focus();
-			f.day.select();
+        function checkYear()
+        {
+                var f = document.getElementById("form1");
+                var strValue = f.year.value;
+                var year = intVal(strValue, -1);
+                if (year < 0)
+                        return false;
 
-			verify();
-			
-			return true;
-		}
+                if (year == 19 || year == 20)
+                        return false;
 
-		return false;
-	}
+                if (strValue.length == 2)
+                {
+                        f.month.focus();
+                        f.month.select();
+                        verify();
+                }
 
-	korona_plugin_api.response.identifyAs("KORONA.pos Age Verification", "1");
+                if (strValue.length == 4 && year > 1900 && year < 2100)
+                {
+                        f.month.focus();
+                        f.month.select();
+                        verify();
 
-	window.onload = function myOnLoadFunc() {
-		korona_plugin_api.ready(function myReadyFunc() {
+                        return true;
+                }
 
-			document.getElementById("debug").innerHTML += "load receipt <br />";
-			
-			receipt = korona_plugin_api.request.receipt;
+                return false;
+        }
 
-			document.getElementById("debug").innerHTML += JSON.stringify(receipt)+"<br />";
+        function verifyMonth()
+        {
+                var f = document.getElementById("form1");
+                var strValue = f.month.value;
+                var month = intVal(strValue, -1);
+                if (month < 0)
+                        return false;
 
-			verify();
-			checkWeight();
-			// check if there are any items that need an age verification
-			if (removedItems.length < 1)
-				korona_plugin_api.backToKorona();
-			else
-				korona_plugin_api.showOsk();
-		});
-	};
+                if (strValue.length > 2)
+                        return false;
 
-	
+                if (strValue.length == 2 && month > 0 && month < 13)
+                {
+                        f.day.focus();
+                        f.day.select();
+
+                        verify();
+
+                        return true;
+                }
+
+                return false;
+        }
+
+        korona_plugin_api.response.identifyAs("KORONA.pos Age Verification", "1");
+
+        window.onload = function myOnLoadFunc() {
+                korona_plugin_api.ready(function myReadyFunc() {
+
+                        document.getElementById("debug").innerHTML += "load receipt <br />";
+
+                        receipt = korona_plugin_api.request.receipt;
+
+                        document.getElementById("debug").innerHTML += JSON.stringify(receipt)+"<br />";
+
+                        verify();
+                        checkWeight();
+                        // check if there are any items that need an age verification
+                        if (removedItems.length < 1)
+                                korona_plugin_api.backToKorona();
+                        else
+                                korona_plugin_api.showOsk();
+                });
+        };
+
+
 </script>
 
 
@@ -370,74 +371,74 @@ body {
 
 
 <body>
-	<form class="form" name="form1" id="form1" action=""
-		onsubmit="removeItemsAndClose(); return false;"
-		style="margin: 50px">
-		
-		<h1>Verify Customer Age</h1>
-		<h3>Please enter the date of birth</h3>
-		<div class="row">
-			<div class="col-xs-1">
-				<div class="form-group">
-					<label class="sr-only" for="year">Year*</label> <input
-						class="form-control" type="text" name="year" id="year" rows="1" size="4" style="width:60px;height:50px"
-						onchange="verify()" required="required" onkeyup="checkYear()"
-						placeholder="Year"></input>
-				</div>
-			</div>
-			<div class="col-xs-1">
-				<div class="form-group">
-					<label class="sr-only" for="month">Month*</label> <input
-						class="form-control" type="text" name="month" id="month" rows="1" onchange="verify()"  onkeyup="verifyMonth()"
-						required="required" placeholder="month" value="12" style="width:60px;height:50px"></input>
-				</div>
-			</div>
-			<div class="col-xs-1">
-				<div class="form-group">
-					<label class="sr-only" for="year">Day*</label> <input
-						class="form-control" type="text" name="day" id="day" rows="1" onchange="verify()"
-						required="required" placeholder="Day" value="31"  nkeyup="verify()" style="width:60px;height:50px"></input>
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-2">
-				<div class="form-group">
-					The following items will get removed: 
-				</div>
-			</div>
-			<div class="col-xs-2">
-				<div class="form-group" id="removedItemsPreview" style="color:red">
-					 
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-xs-12">
-				<div class="form-group">
-					<button class="btn btn-primary" id="submit" onclick="removeItemsAndClose(); return false;">Apply</button>
+        <form class="form" name="form1" id="form1" action=""
+                onsubmit="removeItemsAndClose(); return false;"
+                style="margin: 50px">
 
-					<!-- 
-					<button class="btn btn-secundary"
-						onclick="korona_plugin_api.showOsk();return false;">show keyboard</button>
-					-->
-					<button class="btn btn-secundary develop"
-						onclick="location.reload();return false;">reload</button>
-				</div>
-			</div>
-		</div>
-		<div class="row develop">
-			<div class="col-xs-4">
-				<div class="form-group" id="debug" style="color:blue">
-					 
-				</div>
-			</div>
-		</div>
-	</form>
+                <h1>Verify Customer Age</h1>
+                <h3>Please enter the date of birth</h3>
+                <div class="row">
+                        <div class="col-xs-1">
+                                <div class="form-group">
+                                        <label class="sr-only" for="year">Year*</label> <input
+                                                class="form-control" type="text" name="year" id="year" rows="1" size="4" style="width:60px;height:50px"
+                                                onchange="verify()" required="required" onkeyup="checkYear()"
+                                                placeholder="Year"></input>
+                                </div>
+                        </div>
+                        <div class="col-xs-1">
+                                <div class="form-group">
+                                        <label class="sr-only" for="month">Month*</label> <input
+                                                class="form-control" type="text" name="month" id="month" rows="1" onchange="verify()"  onkeyup="verifyMonth()"
+                                                required="required" placeholder="month" value="12" style="width:60px;height:50px"></input>
+                                </div>
+                        </div>
+                        <div class="col-xs-1">
+                                <div class="form-group">
+                                        <label class="sr-only" for="year">Day*</label> <input
+                                                class="form-control" type="text" name="day" id="day" rows="1" onchange="verify()"
+                                                required="required" placeholder="Day" value="31"  nkeyup="verify()" style="width:60px;height:50px"></input>
+                                </div>
+                        </div>
+                </div>
+                <div class="row">
+                        <div class="col-xs-2">
+                                <div class="form-group">
+                                        The following items will get removed: 
+                                </div>
+                        </div>
+                        <div class="col-xs-2">
+                                <div class="form-group" id="removedItemsPreview" style="color:red">
+                                         
+                                </div>
+                        </div>
+                </div>
+                <div class="row">
+                        <div class="col-xs-12">
+                                <div class="form-group">
+                                        <button class="btn btn-primary" id="submit" onclick="removeItemsAndClose(); return false;">Apply</button>
+
+                                        <!-- 
+                                        <button class="btn btn-secundary"
+                                                onclick="korona_plugin_api.showOsk();return false;">show keyboard</button>
+                                        -->
+                                        <button class="btn btn-secundary develop"
+                                                onclick="location.reload();return false;">reload</button>
+                                </div>
+                        </div>
+                </div>
+                <div class="row develop">
+                        <div class="col-xs-4">
+                                <div class="form-group" id="debug" style="color:blue">
+                                         
+                                </div>
+                        </div>
+                </div>
+        </form>
 
 
-	<script type="text/javascript">
-		document.getElementById("year").focus();
-	</script>
+        <script type="text/javascript">
+                document.getElementById("year").focus();
+        </script>
 </body>
 </html>
