@@ -117,7 +117,7 @@ body {
 
                             if (limit < sum)
                             {
-                                over =  (Math.round(sum - limit*100)/100);;
+                                over =  Math.round((sum - limit)*100)/100;
                                 msg = "You exceeded the limit for '"+sector+"' by "+over+"g";
                                 document.getElementById("debug").innerHTML += "display: "+msg+" \n";
                                 korona_plugin_api.response.displayMessage({
