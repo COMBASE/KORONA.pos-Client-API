@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Age and Quantity Verification</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!-- Syntax highlighter-->
+<link rel="stylesheet"
+        href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"></link>
+<script type="text/javascript"
+        src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+
+<script src="http://codemirror.net/lib/codemirror.js"></script>
+<link rel="stylesheet" href="http://codemirror.net/lib/codemirror.css">
+<script src="http://codemirror.net/mode/javascript/javascript.js"></script>
+<script src="http://codemirror.net/addon/fold/foldcode.js"></script>
+<link rel="stylesheet"
+        href="http://codemirror.net/addon/fold/foldgutter.css"></link>
+<script src="http://codemirror.net/addon/fold/foldgutter.js"></script>
+<script src="http://codemirror.net/addon/fold/brace-fold.js"></script>
+
+<!-- jQuery -->
+<script src="jquery.min.js"></script>
+
+<!-- Bootstrap -->
+<link rel="stylesheet" href="bootstrap.min.css"></link>
+<link rel="stylesheet" href="bootstrap-theme.min.css"></link>
+<script src="bootstrap.min.js"></script>
+
+<!-- KORONA.pos-Client API module -->
+<script type="text/javascript" src="webbrowser:korona-plugin-api.js"></script>
+<link rel="stylesheet" href="webbrowser:koronaposclient.css"></link>
+
+<style>
+code, kbd, pre, samp {
+        font-family: monospace;
+}
+
+body {
+        font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.CodeMirror {
+        height: auto;
+}
+
+.develop {
+        display: none;
+}
+</style>
+
+<script type="text/javascript">
+
+        // sector age restriction
+        // sector #921 has age restriction of 21
+        // sector #918 has age restriction of 18
+        // sector #916 has age restriction of 16
+        var sectors = {921:21,918:18,916:16};
+        
+        // set to false to disable sector item quantity check
+        var checkSectorQuantityLimit = true;
+
+        var errors = 0;
+
+        function extractQuantity(str)
+        {
+            str = str.replace(/ \./i, " 0.");
+            ret = str.replace(/^.*?(\d+\.?\d*)[ ]*[P|p]ack.*$/i, "\$1");
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
+            if (ret.length > 0 && parseFloat(ret) > 0)
+                return parseFloat(ret);
+            ret = str.replace(/^.*?(\d+\.?\d*)[ ]*pk.*$/i, "\$1");
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
+            if (ret.length > 0)
+                return parseFloat(ret);
+            ret = str.replace(/^.*?(\d+\.?\d*)ml.*$/i, "\$1");
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
+            if (ret.length > 0)
+                return parseFloat(ret);
+            return -1;
+        }
+
+
+        function checkQuantity()
+        {
+                document.getElementById("debug").innerHTML += "checkQuantity <br />";
+
+                limits = [];
+                sums = [];
+                if (receipt)
+                {
+                        for (index = 0; index < receipt.sales.length; index++)
+                        {
+                                document.getElementById("debug").innerHTML += "check item "+index+" \n";
+
+                                var item = receipt.sales[index];
+
+                                itemWeight = extractQuantity(item.product.name);
+                                if (itemWeight <= 0)
+                                    continue;
+
+                                sectorLimit = extractQuantity(item.sector.name);
+                                if (!limits[item.sector.name] && sectorLimit > 0)
+                                {
+                                        document.getElementById("debug").innerHTML += "adding new sector \n";
+
+                                        limits[item.sector.name] = sectorLimit;
+                                }
+                                subtotal = 0;
+                                if (sums[item.sector.name])
+                                    subtotal = sums[item.sector.name];
+                                subtotal += itemWeight * item.quantity;
+
+                                sums[item.sector.name] = subtotal;
+                        }
+
+                        for(var sector in limits) {
+                            limit = limits[sector];
+                            sum = sums[sector];
+                            limit = (Math.round(limit*100)/100);
+                            sum = (Math.round(sum*100)/100);
+
+                            document.getElementById("debug").innerHTML += "limit:"+limit+" sum:"+sum+" \n";
+
+                            if (limit < sum)
+                            {
+                                over =  Math.round((sum - limit)*100)/100;
+                                msg = "You exceeded the limit for '"+sector+"' by "+over;
+                                document.getElementById("debug").innerHTML += "display: "+msg+" \n";
+                                korona_plugin_api.response.displayMessage({
+                                    text: msg,
+                                    level: "WARN"
+                                });
+
+				korona_plugin_api.backToKorona();
+
+                                errors++;
+                            }
+                        }
+                }
+                else
+                        document.getElementById("debug").innerHTML += "receipt is null <br />";
+        }
+
+        removedItems = [];
+
+
+
+        // check value
+        function intVal(value, altValue)
+        {
+                if (!value)
+                        return altValue;
+
+                var intVal = parseInt(value, 10);
+
+                if (intVal == "NaN" || intVal < 1)
+                        return altValue;
+
+                return intVal;
+        }
+
+        function getAge()
+        {
+                var f = document.getElementById("form1");
+                var year = intVal(f.year.value, new Date().getFullYear());
+                var month = intVal(f.month.value, 12);
+                var day = intVal(f.day.value, 31);
+
+                document.getElementById("debug").innerHTML += "getAge() "+year+"-"+month+"-"+day+"<br />";
+
+                // transform two digit year into full number
+                if (year < 100)
+                {
+                        if (2000+year > currentYear)
+                                year += 1900;
+                        else
+                                year += 2000;
+                }
+
+                var birthday = new Date(year, month - 1, day);
+
+                var ageDifMs = Date.now() - birthday.getTime();
+            var ageDate = new Date(ageDifMs);
+
+            return Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+
+        function previewItems()
+        {
+                document.getElementById("debug").innerHTML += "previewItems() <br />";
+                var text = "";
+                for     (index = 0; index < removedItems.length; index++)
+                {
+                    text += removedItems[index].product.name;
+                        if (index < removedItems.length - 1)
+                                text += ", ";
+                }
+
+                document.getElementById("removedItemsPreview").innerHTML = text;
+
+                var submit = document.getElementById("submit");
+                if (removedItems.length < 1)
+                {
+                         submit.innerHTML = "All items approved";
+                        // submit.style.backgroundColor = "green";
+                }
+                else
+                {
+                         submit.innerHTML = "Remove restricted items";
+                         //submit.style.backgroundColor = "red";
+                }
+
+                document.getElementById("debug").innerHTML += "previewItems() - end <br />";
+
+        }
+
+        function removeItemsAndClose()
+        {
+                var text = "The following items have been removed: \n";
+                error = 0;
+                for     (index = 0; index < removedItems.length; index++)
+                {
+                    text += removedItems[index].decription + " (" + removedItems[index].quantity + ")";
+                        if (index < removedItems.length - 1)
+                                text += ", \n";
+
+//                      korona_plugin_api.response.removeReceiptItem({
+//                              modifier: removedItems[index].modifier,
+//                      });
+                        document.getElementById("debug").innerHTML += "remove "+removedItems[index].decription+"<br />";
+                        error++;
+
+                }
+                if (removedItems.length > 0)
+                {
+                        korona_plugin_api.response.logMessage({
+                                text: text,
+                                level: "WARN"
+                        });
+                }
+
+		korona_plugin_api.response.unsetReceiptFinishBlockingIndicator();
+                korona_plugin_api.backToKorona();
+        }
+
+        function verify()
+        {
+                document.getElementById("debug").innerHTML += "verify <br />";
+                var age = getAge();
+                removedItems = [];
+                //var receipt = korona_plugin_api.request.receipt;
+                if (receipt)
+                {
+                        for     (index = 0; index < receipt.sales.length; index++)
+                        {
+                                document.getElementById("debug").innerHTML += "check item "+index+" <br />";
+
+                                var item = receipt.sales[index];
+
+                                if (!sectors[item.sector.number])
+                                {
+                                        document.getElementById("debug").innerHTML += "item sector has no age restriction <br />";
+                                        continue;
+                                }
+
+                                var minAge = sectors[item.sector.number];
+                                var age = getAge();
+
+                                if (minAge > age)
+                                        removedItems.push(item);
+                        }
+                }
+                else
+                        document.getElementById("debug").innerHTML += "receipt is null <br />";
+
+                previewItems();
+        }
+
+        function checkYear()
+        {
+                var f = document.getElementById("form1");
+                var strValue = f.year.value;
+                var year = intVal(strValue, -1);
+                if (year < 0)
+                        return false;
+
+                if (year == 19 || year == 20)
+                        return false;
+
+                if (strValue.length == 2)
+                {
+                        f.month.focus();
+                        f.month.select();
+                        verify();
+                }
+
+                if (strValue.length == 4 && year > 1900 && year < 2100)
+                {
+                        f.month.focus();
+                        f.month.select();
+                        verify();
+
+                        return true;
+                }
+
+                return false;
+        }
+
+        function verifyMonth()
+        {
+                var f = document.getElementById("form1");
+                var strValue = f.month.value;
+                var month = intVal(strValue, -1);
+                if (month < 0)
+                        return false;
+
+                if (strValue.length > 2)
+                        return false;
+
+                if (strValue.length == 2 && month > 0 && month < 13)
+                {
+                        f.day.focus();
+                        f.day.select();
+
+                        verify();
+
+                        return true;
+                }
+
+                return false;
+        }
+
+        korona_plugin_api.response.identifyAs("KORONA.pos Age Verification", "1");
+
+        window.onload = function myOnLoadFunc() {
+                korona_plugin_api.ready(function myReadyFunc() {
+
+                        document.getElementById("debug").innerHTML += "load receipt <br />";
+
+                        receipt = korona_plugin_api.request.receipt;
+
+                        document.getElementById("debug").innerHTML += JSON.stringify(receipt)+"<br />";
+
+                        verify();
+                        
+                        if (checkSectorQuantityLimit)
+                            checkQuantity();
+
+                        // check if there are any items that need an age verification
+                        if (removedItems.length < 1 && errors < 1)
+                        {
+                            korona_plugin_api.response.unsetReceiptFinishBlockingIndicator();
+                            korona_plugin_api.backToKorona();
+                        }
+                        else
+                            korona_plugin_api.showOsk();
+                });
+        };
+
+
+</script>
+
+
+<head>
+
+
+<body>
+        <form class="form" name="form1" id="form1" action=""
+                onsubmit="removeItemsAndClose(); return false;"
+                style="margin: 50px">
+
+                <h1>Verify Customer Age</h1>
+                <h3>Please enter the date of birth</h3>
+                <div class="row">
+                        <div class="col-xs-1">
+                                <div class="form-group">
+                                        <label class="sr-only" for="year">Year*</label> <input
+                                                class="form-control" type="text" name="year" id="year" rows="1" size="4" style="width:60px;height:50px"
+                                                onchange="verify()" required="required" onkeyup="checkYear()"
+                                                placeholder="Year"></input>
+                                </div>
+                        </div>
+                        <div class="col-xs-1">
+                                <div class="form-group">
+                                        <label class="sr-only" for="month">Month*</label> <input
+                                                class="form-control" type="text" name="month" id="month" rows="1" onchange="verify()"  onkeyup="verifyMonth()"
+                                                required="required" placeholder="month" value="12" style="width:60px;height:50px"></input>
+                                </div>
+                        </div>
+                        <div class="col-xs-1">
+                                <div class="form-group">
+                                        <label class="sr-only" for="year">Day*</label> <input
+                                                class="form-control" type="text" name="day" id="day" rows="1" onchange="verify()"
+                                                required="required" placeholder="Day" value="31"  nkeyup="verify()" style="width:60px;height:50px"></input>
+                                </div>
+                        </div>
+                </div>
+                <div class="row">
+                        <div class="col-xs-2">
+                                <div class="form-group">
+                                        The following items will get removed:
+                                </div>
+                        </div>
+                        <div class="col-xs-2">
+                                <div class="form-group" id="removedItemsPreview" style="color:red">
+
+                                </div>
+                        </div>
+                </div>
+                <div class="row">
+                        <div class="col-xs-12">
+                                <div class="form-group">
+                                        <button class="btn btn-primary" id="submit" onclick="removeItemsAndClose(); return false;">Apply</button>
+
+                                        <!--
+                                        <button class="btn btn-secundary"
+                                                onclick="korona_plugin_api.showOsk();return false;">show keyboard</button>
+                                        -->
+                                        <button class="btn btn-secundary develop"
+                                                onclick="location.reload();return false;">reload</button>
+                                </div>
+                        </div>
+                </div>
+                <div class="row develop">
+                        <div class="col-xs-4">
+                                <div class="form-group" id="debug" style="color:blue">
+
+                                </div>
+                        </div>
+                </div>
+        </form>
+
+
+        <script type="text/javascript">
+                document.getElementById("year").focus();
+        </script>
+</body>
+</html>
