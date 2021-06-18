@@ -233,15 +233,11 @@ body {
                         error++;
 
                 }
-                if (removedItems.length > 0)
+                if (removedItems.length < 1)
                 {
-                        korona_plugin_api.response.logMessage({
-                                text: text,
-                                level: "WARN"
-                        });
-                }
+			korona_plugin_api.response.unsetReceiptFinishBlockingIndicator();
+		}
 
-		korona_plugin_api.response.unsetReceiptFinishBlockingIndicator();
                 korona_plugin_api.backToKorona();
         }
 
