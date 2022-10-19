@@ -78,6 +78,14 @@ body {
             document.getElementById("debug").innerHTML += "parse "+ret+" \n";
             if (ret.length > 0)
                 return parseFloat(ret);
+            ret = str.replace(/^.*?(\d+\.?\d*)g.*$/i, "\$1");
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
+            if (ret.length > 0)
+                return parseFloat(ret);
+            ret = str.replace(/^.*?(\d+\.?\d*)oz.*$/i, "\$1");
+            document.getElementById("debug").innerHTML += "parse "+ret+" \n";
+            if (ret.length > 0)
+                return parseFloat(ret);
             return -1;
         }
 
