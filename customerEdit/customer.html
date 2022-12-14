@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Modify Customer</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!-- Syntax highlighter-->
+<link rel="stylesheet"
+	href="default.min.css"></link>
+<script type="text/javascript"
+	src="highlight.min.js"></script>
+
+<script src="codemirror.js"></script>
+<link rel="stylesheet" href="codemirror.css">
+<script src="javascript.js"></script>
+<script src="foldcode.js"></script>
+<link rel="stylesheet"
+	href="foldgutter.css"></link>
+<script src="foldgutter.js"></script>
+<script src="brace-fold.js"></script>
+
+<!-- jQuery -->
+<script src="jquery.min.js"></script>
+
+<!-- Bootstrap -->
+<link rel="stylesheet" href="bootstrap.min.css"></link>
+<link rel="stylesheet" href="bootstrap-theme.min.css"></link>
+<script src="bootstrap.min.js"></script>
+
+<!-- KORONA.pos-Client API module -->
+<script type="text/javascript" src="korona-plugin-api.js"></script>
+<link rel="stylesheet" href="koronaposclient.css"></link>
+
+<style>
+code, kbd, pre, samp {
+	font-family: monospace;
+}
+
+body {
+	font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.CodeMirror {
+	height: auto;
+}
+
+.develop {
+	display: none;
+}
+</style>
+
+<script type="text/javascript">
+
+
+	korona_plugin_api.response.identifyAs("KORONA.pos Age Verification", "1");
+
+	window.onload = function myOnLoadFunc() {
+		korona_plugin_api.ready(function myReadyFunc() {
+			
+			receipt = korona_plugin_api.request.receipt;
+			customer = receipt.customer;
+
+
+			form = document.getElementById("form1");
+			if (customer)
+			{
+				form.number.value = nullToEmpty(customer.number);
+				form.firstname.value = nullToEmpty(customer.firstName);
+				form.lastname.value = nullToEmpty(customer.lastName);
+				form.phone.value = nullToEmpty(customer.phone);
+
+				if (customer.birthday)
+				{
+					const ba = customer.birthday.split("-");
+					form.dob.value = ba[1]+'/'+ba[2]+'/'+ba[0];
+				}
+			}
+
+
+		});
+
+		$("#form1 :input").on("focus", function(e) {
+			korona_plugin_api.showOsk();
+		});
+	};
+
+
+	function emptyToNull(obj) {
+		return (obj === '' || obj === null) ? undefined : obj;
+	}
+
+	function nullToEmpty(obj)
+	{
+		if (obj)
+			return obj;
+
+		return "";
+	}
+
+	function submitCustomer()
+	{
+		form = document.getElementById("form1");
+
+		date = undefined;
+		if (form.dob.value != '')
+		{
+			const d = Date.parse(form.dob.value);
+			const   date_obj = new Date(d);
+			date = `${date_obj.getFullYear()}-${date_obj.toLocaleString("default", { month: "2-digit" })}-${date_obj.toLocaleString("default", { day: "2-digit"})}`;
+		}
+
+		korona_plugin_api.response.setReceiptCustomer({
+						birthday: date,
+						firstName: emptyToNull(form.firstname.value),
+						lastName: emptyToNull(form.lastname.value),
+						number: emptyToNull(form.number.value),
+						phone: emptyToNull(form.phone.value)
+				});
+
+		korona_plugin_api.hideOsk();
+		korona_plugin_api.backToKorona();
+	}
+
+	
+</script>
+
+
+<head>
+
+
+<body>
+	<form class="form" name="form1" id="form1" action=""
+		onsubmit="submitCustomer(); return false;"
+		style="margin: 50px">
+		<div class="row">
+			<div class="col-md-6 form-group">
+					<label  for="number">Customer Number</label> <input
+						class="form-control" type="text" name="number" id="number" rows="1" size="20" style="width:400px;height:50px"
+						required="required" value=""
+						placeholder="Customer Number"></input>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 form-group">
+					<label for="firstname">First Name</label> <input
+						class="form-control" type="text" name="firstname" id="firstname" rows="1"
+						required="required" placeholder="First Name" value="" style="width:400px;height:50px"></input>
+			</div>
+			<div class="col-md-6 form-group">
+					<label for="lastname">Last Name</label> <input
+						class="form-control" type="text" name="lastname" id="lastname" rows="1"
+						placeholder="First Name" value="" style="width:400px;height:50px"></input>
+			</div>
+			<div class="col-md-6 form-group">
+					<label for="phone">Phone</label> <input
+						class="form-control" type="text" name="phone" id="phone" rows="1"
+						placeholder="Phone" value="" style="width:400px;height:50px"></input>
+			</div>
+			<div class="col-md-6 form-group">
+					<label for="dob">Date of Birth</label> <input
+						class="form-control" type="date" name="dob" id="dob" rows="1"
+						placeholder="mm/dd/yyyy" min="1997-01-01" max="2030-12-31" style="width:400px;height:50px"></input>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+					<button class="btn btn-primary" id="button" type="button" onclick="submitCustomer(); return false;" style="width:150px;height:60px;font-size:30px">Save</button>
+			</div>
+		</div>
+	</form>
+
+</body>
+</html>
